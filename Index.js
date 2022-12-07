@@ -4,6 +4,7 @@ const User = require("./Models/UserModel")
 const Property = require("./Models/Property")
 const app = express(); 
 const jwt = require("jsonwebtoken")
+const Transaction = require("./Models/Transaction")
 const cors = require("cors")
 const  mongoose = require("mongoose") 
 const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?retryWrites=true&w=majority"
@@ -49,6 +50,63 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
               
             }
         }) 
+
+         //ADD TRANSACTIONS 
+         app.post('/api/addtransaction',async (req,res)=>{ 
+           
+            try{   
+                const transact = await  Transaction.create({ 
+
+                    transactionType : req.body.tidType,
+                    Agent : req.body.email,
+                    transactionID : req.body.TID,
+                    Branch : req.body.Branch,
+                    transactionAmount :req.body.amount
+
+                })
+
+                res.json({
+                    status : "Ok"
+                })
+
+            }catch(err){ 
+
+                res.json({
+                    status : "error",
+                    error : "Invalid entry"
+                })
+              
+            }
+        }) 
+
+        //GET ALL TRANSACTIONS 
+        app.get('/api/usertransactions',async (req,res)=>{ 
+           
+            const token = req.headers['x-access-token']
+
+            try {
+                // const decoded = jwt.verify(token, 'secret123')
+                // const email = decoded.email
+                const transact = await Transaction.find({ email: token })
+                if(transact){
+
+                    res.json({ status: 'ok', propdata : transact })
+                }else{
+                    res.json({ status: 'error', error: "invalid request" })
+                }
+                
+                
+            } catch (error) {
+                console.log(error)
+                res.json({ status: 'error', error: 'invalid token' })
+            }
+           
+        }) 
+
+
+
+
+
         //ADD PROPERTY  
         app.post('/api/addprop',async (req,res)=>{ 
            
@@ -72,6 +130,8 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
               
             }
         }) 
+
+       
         //Get ALL PROPERTY 
         app.get('/api/dashboard',async (req,res)=>{ 
            
