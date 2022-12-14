@@ -28,8 +28,10 @@ const Transaction = mongoose.Schema({
     },
 
     TDate : {
-        type : String, 
-        default : new Date()
+        type: Date,
+        default: Date.now 
+        // type : String, 
+        // default : new Date()
     } 
 
 })   

@@ -26,7 +26,7 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
             console.log("Server running on 2000")
         }) 
 
-
+        // USER AUTHENTICATION
         app.post('/api/register',async (req,res)=>{ 
            
             try{   
@@ -50,6 +50,45 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
               
             }
         }) 
+
+        app.post('/api/login',async (req,res)=>{ 
+           
+
+            const user = await User.findOne({
+                email : req.body.email,
+                password : req.body.password,  
+            }) 
+            if(user){ 
+            
+                // const roles = Object.values({user})
+                // var role = user.role;
+                const token = jwt.sign(
+                    {
+                        name: user.name,
+                        email: user.email,
+                    },
+                    'secret123'
+                )
+        
+                res.json({ status: 'ok', 
+                    data :{
+                        user: user.email ,
+                        role : user.role
+                    }
+                })
+                // res.json({ status: 'ok', user: token , role : user.role})
+              
+
+            }else{  
+
+                res.json({
+                    status : "error",
+                    user : false
+                })
+
+            }
+       
+    }) 
 
          //ADD TRANSACTIONS 
          app.post('/api/addtransaction',async (req,res)=>{ 
@@ -87,7 +126,7 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
             try {
                 // const decoded = jwt.verify(token, 'secret123')
                 // const email = decoded.email
-                const transact = await Transaction.find({ email: token })
+                const transact = await Transaction.find({ Agent: token })
                 if(transact){
 
                     res.json({ status: 'ok', propdata : transact })
@@ -203,36 +242,7 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
             }
            
         }) 
-        app.post('/api/login',async (req,res)=>{ 
-           
-
-                const user = await User.findOne({
-                    email : req.body.email,
-                    password : req.body.password,  
-                }) 
-                if(user){ 
-
-                    // const roles = Object.values({user})
-                    const token = jwt.sign(
-                        {
-                            name: user.name,
-                            email: user.email,
-                        },
-                        'secret123'
-                    )
-            
-                    res.json({ status: 'ok', user: token })
-
-                }else{  
-
-                    res.json({
-                        status : "error",
-                        user : false
-                    })
-
-                }
-           
-        }) 
+      
 
         app.get('/Hello',(req,res)=>{ 
             

@@ -21,7 +21,11 @@ const { default: mongoose, model } = require("mongoose");
       },
       BID : {
         type : String,
-        
+
+      },
+      role : {
+        type : String,
+        default : "user"
       }
       
   },

@@ -12,8 +12,8 @@ const property = mongoose.Schema({
     
     },
      DateAdded : {
-        type : String,
-        default : new Date()
+        type: Date,
+        default: Date.now 
      }, 
      VStatus : {
         type : Boolean,
