@@ -14,7 +14,7 @@ const Transaction = mongoose.Schema({
         required : true
     },
     transactionAmount :{
-        type : String,
+        type : Number,
         required : true
     },
     Agent :{

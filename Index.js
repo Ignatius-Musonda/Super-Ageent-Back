@@ -34,6 +34,7 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
                     name : req.body.name,
                     email : req.body.email,
                     password : req.body.password,
+                    Branch : req.body.Branch,
 
                 })
 
@@ -73,7 +74,10 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
                 res.json({ status: 'ok', 
                     data :{
                         user: user.email ,
-                        role : user.role
+                        name: user.name ,
+                        role : user.role,
+                        Branch : user.Branch,
+
                     }
                 })
                 // res.json({ status: 'ok', user: token , role : user.role})
@@ -118,7 +122,7 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
             }
         }) 
 
-        //GET ALL TRANSACTIONS 
+        //GET AGENT TRANSACTIONS 
         app.get('/api/usertransactions',async (req,res)=>{ 
            
             const token = req.headers['x-access-token']
@@ -126,13 +130,84 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
             try {
                 // const decoded = jwt.verify(token, 'secret123')
                 // const email = decoded.email
-                const transact = await Transaction.find({ Agent: token })
+                const transact = await Transaction.find({ Agent: token }); 
+
+               
+                
                 if(transact){
 
-                    res.json({ status: 'ok', propdata : transact })
+                    res.json({ status: 'ok', propdata : transact})
                 }else{
                     res.json({ status: 'error', error: "invalid request" })
                 }
+            
+                
+                
+            } catch (error) {
+                console.log(error)
+                res.json({ status: 'error', error: 'invalid token' })
+            }
+           
+        }) 
+        //GET ALL TRANSACTIONS 
+        app.get('/api/Alltransactions',async (req,res)=>{ 
+           
+            const token = req.headers['x-access-token']
+
+            try {
+                // const decoded = jwt.verify(token, 'secret123')
+                // const email = decoded.email
+                const transact = await Transaction.find(); 
+
+               
+                
+                if(transact){
+
+                    res.json({ status: 'ok', propdata : transact})
+                }else{
+                    res.json({ status: 'error', error: "invalid request" })
+                }
+            
+                
+                
+            } catch (error) {
+                console.log(error)
+                res.json({ status: 'error', error: 'invalid token' })
+            }
+           
+        }) 
+
+        // GET ALL ADMIN TRANSACTIONS 
+        app.get('/api/adminoverview',async (req,res)=>{ 
+           
+            const token = req.headers['x-access-token']
+
+            try {
+                // const decoded = jwt.verify(token, 'secret123')
+                // const email = decoded.email
+                // const transact = await Transaction.find({ Agent: token }); 
+
+                 const stats = await Transaction.aggregate([
+                    {
+                      $group: {
+                        _id: '$Branch', 
+                        totalNumOfBranches: { $sum: 1 },
+                        // totalNumOfBranches: { $sum: 1 },
+                        Deposits: {$sum: {$cond: [ {$eq: [  "$transactionType", "Deposit" ]} , 1 , 0 ]}},
+                        Withdraws: {$sum: {$cond: [ {$eq: [  "$transactionType", "Withdraw" ]} , 1 , 0 ]}},
+                        TransactionAmnt: { $sum:"$transactionAmount"},
+                        transactionAmount: {"$sum": "$transactionAmount"},
+                      },
+                    },
+                  ]);
+                
+                if(stats){
+
+                    res.json({ status: 'ok', propdata : stats })
+                }else{
+                    res.json({ status: 'error', error: "invalid request" })
+                }
+            
                 
                 
             } catch (error) {

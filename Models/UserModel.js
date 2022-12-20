@@ -23,6 +23,10 @@ const { default: mongoose, model } = require("mongoose");
         type : String,
 
       },
+      Branch : {
+        type : String,
+
+      },
       role : {
         type : String,
         default : "user"
