@@ -2,6 +2,8 @@
 const express = require("express")
 const User = require("./Models/UserModel")
 const Property = require("./Models/Property")
+const { v4: uuidv4 } = require('uuid');
+
 const app = express(); 
 const jwt = require("jsonwebtoken")
 const Transaction = require("./Models/Transaction")
@@ -13,6 +15,10 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
         const con = mongoose.connection; 
         con.on('open',function(){
             console.log('connnected to DB')
+            // console.log(uuidv4())
+            
+
+
         })
 
 
@@ -96,13 +102,23 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
 
          //ADD TRANSACTIONS 
          app.post('/api/addtransaction',async (req,res)=>{ 
+          
            
-            try{   
+            try{       
+
+                const currentDate = new Date();
+                const Year = String(currentDate.getFullYear()).substring(2,4);  // returns last digits the current year
+                const Month = currentDate.getMonth()+1;  // returns the current month
+                const transID = Year+Month+String(uuidv4()).substring(0,13); // forming unique ID plus date
+                // console.log(transID);
+
+
                 const transact = await  Transaction.create({ 
 
                     transactionType : req.body.tidType,
                     Agent : req.body.email,
-                    transactionID : req.body.TID,
+                    transactionID : transID,
+                    // transactionID : req.body.TID,
                     Branch : req.body.Branch,
                     transactionAmount :req.body.amount
 
@@ -190,7 +206,8 @@ const url = "mongodb+srv://ignatius:417659Surplus@cluster0.k0gc8cm.mongodb.net/?
                  const stats = await Transaction.aggregate([
                     {
                       $group: {
-                        _id: '$Branch', 
+                        // _id: '$Branch', 
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$TDate" } },
                         totalNumOfBranches: { $sum: 1 },
                         // totalNumOfBranches: { $sum: 1 },
                         Deposits: {$sum: {$cond: [ {$eq: [  "$transactionType", "Deposit" ]} , 1 , 0 ]}},
